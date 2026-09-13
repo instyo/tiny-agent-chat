@@ -8,6 +8,7 @@ services:
     environment:
       OPENAI_API_KEY: CHANGE_ME
       OPENAI_BASE_URL: CHANGE_ME
+      TAVILY_API_KEY: CHANGE_ME
       ANVIA_MEMORY_PATH: /app/data/anvia-memory.sqlite
       NODE_ENV: production
       CHAT_SESSION_ID: default
