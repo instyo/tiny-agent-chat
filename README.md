@@ -2,7 +2,9 @@
 
 CLI agent chat with Anvia tools + SQLite memory.
 
-## Local
+Commands: `/exit` `/clear` `/session` `/new`
+
+## Local (Bun)
 
 ```bash
 bun install
@@ -10,32 +12,122 @@ cp .env.example .env   # set OPENAI_API_KEY
 bun start
 ```
 
-Commands: `/exit` `/clear` `/session` `/new`
+## Deploy flow (GitHub → GHCR → CasaOS)
 
-## Docker (local)
+```
+push to main → GitHub Actions builds linux/arm64 → ghcr.io/<you>/tiny-agent-chat
+→ CasaOS/Armbian pulls image → SSH + docker exec to chat
+```
+
+### 1. GitHub repo
+
+```bash
+git init   # if needed
+git add .
+git commit -m "Initial commit"
+# create a private repo on GitHub, then:
+git remote add origin git@github.com:instyo/tiny-agent-chat.git
+git branch -M main
+git push -u origin main
+```
+
+### 2. GitHub Actions → GHCR
+
+On every push to `main` (and tags `v*`), [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml) builds **linux/arm64** and pushes:
+
+- `ghcr.io/<owner>/tiny-agent-chat:latest`
+- `ghcr.io/<owner>/tiny-agent-chat:<short-sha>`
+- `ghcr.io/<owner>/tiny-agent-chat:<tag>` (on version tags)
+
+After the first successful run:
+
+1. GitHub → your profile/org → **Packages** → `tiny-agent-chat`
+2. Package settings → keep **Private** (default for private repos)
+
+No API keys are needed in Actions; secrets stay on the server.
+
+### 3. Armbian / CasaOS one-time setup
+
+**A. Docker login to private GHCR**
+
+Create a GitHub PAT with `read:packages`, then on the server:
+
+```bash
+echo YOUR_PAT | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+```
+
+**B. App files**
+
+```bash
+mkdir -p /DATA/AppData/tiny-agent-chat   # or any path you prefer
+cd /DATA/AppData/tiny-agent-chat
+# copy docker-compose.yml from the repo, then:
+cp .env.example .env
+```
+
+Edit `.env`:
+
+```env
+IMAGE=ghcr.io/instyo/tiny-agent-chat:latest
+OPENAI_API_KEY=sk-...
+```
+
+**C. Install**
+
+CasaOS → **Install a customized app** → paste `docker-compose.yml` (ensure `IMAGE` matches), or:
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+### 4. Chat (SSH)
+
+```bash
+docker exec -it tiny-agent-chat bun run src/index.ts
+```
+
+On-demand without the keep-alive container:
+
+```bash
+docker compose run --rm --entrypoint bun chat run src/index.ts
+```
+
+### 5. Updates
+
+After Actions publishes a new `:latest`:
+
+```bash
+cd /DATA/AppData/tiny-agent-chat
+docker compose pull
+docker compose up -d
+```
+
+Memory persists in the `chat-data` volume.
+
+---
+
+## Docker (local build)
+
+```bash
+docker compose -f docker-compose.dev.yml build
+docker compose -f docker-compose.dev.yml run --rm chat
+```
+
+Or plain Docker:
 
 ```bash
 docker build -t tiny-agent-chat:latest .
 docker run --rm -it --init --env-file .env -v tiny-agent-data:/app/data tiny-agent-chat:latest
 ```
 
-## Deploy to Armbian (from Mac)
+## Offline deploy (Mac → Armbian scp)
 
-One-time on the server:
-
-```bash
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker $USER   # re-login
-uname -m   # expect aarch64
-```
-
-From this machine:
+Fallback if you cannot use GHCR:
 
 ```bash
 export DEPLOY_HOST=user@armbian-ip
 bun run deploy:armbian
-# then edit /opt/tiny-agent-chat/.env on the server with OPENAI_API_KEY
-ssh -t $DEPLOY_HOST 'cd /opt/tiny-agent-chat && docker run --rm -it --init --env-file .env -v tiny-agent-data:/app/data tiny-agent-chat:latest'
 ```
 
-Optional env overrides: `IMAGE_NAME`, `REMOTE_DIR`, `PLATFORM` (default `linux/arm64`).
+See `scripts/deploy-armbian.sh`. Prefer the GHCR flow above for day-to-day use.

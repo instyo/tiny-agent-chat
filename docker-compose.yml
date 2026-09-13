@@ -1,18 +1,22 @@
+# Production / CasaOS: pull from GHCR (set IMAGE in .env)
 services:
   chat:
-    image: tiny-agent-chat:latest
-    build:
-      context: .
-      platforms:
-        - linux/arm64
+    image: ${IMAGE:-ghcr.io/instyo/tiny-agent-chat:latest}
+    container_name: tiny-agent-chat
     stdin_open: true
     tty: true
     init: true
     env_file:
       - .env
+    environment:
+      ANVIA_MEMORY_PATH: /app/data/anvia-memory.sqlite
+      NODE_ENV: production
     volumes:
       - chat-data:/app/data
     working_dir: /app
+    # Keep container up for CasaOS; chat via: docker exec -it tiny-agent-chat bun run src/index.ts
+    command: ["sleep", "infinity"]
+    restart: unless-stopped
 
 volumes:
   chat-data:

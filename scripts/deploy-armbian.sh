@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Offline fallback: build on this machine and scp to Armbian.
+# Preferred path: push to GitHub → Actions → GHCR → docker compose pull on server.
 set -euo pipefail
 
 HOST="${DEPLOY_HOST:?set DEPLOY_HOST=user@armbian-ip}"
@@ -21,7 +23,7 @@ docker save "$IMAGE" | gzip > "$TMP"
 echo "==> Copying to $HOST:$REMOTE_DIR"
 ssh "$HOST" "mkdir -p '$REMOTE_DIR'"
 scp "$TMP" "$HOST:$REMOTE_DIR/image.tar.gz"
-scp "$ROOT/docker-compose.yml" "$HOST:$REMOTE_DIR/docker-compose.yml"
+scp "$ROOT/docker-compose.dev.yml" "$HOST:$REMOTE_DIR/docker-compose.yml"
 scp "$ROOT/.env.example" "$HOST:$REMOTE_DIR/.env.example"
 
 echo "==> Loading image on server"

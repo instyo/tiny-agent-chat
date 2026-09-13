@@ -1,0 +1,23 @@
+# Local build (Mac/dev). Usage:
+#   docker compose -f docker-compose.dev.yml build
+#   docker compose -f docker-compose.dev.yml run --rm chat
+services:
+  chat:
+    image: tiny-agent-chat:latest
+    build:
+      context: .
+      platforms:
+        - linux/arm64
+    stdin_open: true
+    tty: true
+    init: true
+    env_file:
+      - .env
+    environment:
+      ANVIA_MEMORY_PATH: /app/data/anvia-memory.sqlite
+    volumes:
+      - chat-data:/app/data
+    working_dir: /app
+
+volumes:
+  chat-data:

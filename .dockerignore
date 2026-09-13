@@ -3,6 +3,7 @@ data
 .env
 .env.*
 .git
+.github
 .gitignore
 *.sqlite
 *.sqlite-journal
@@ -11,5 +12,6 @@ data
 README.md
 scripts
 docker-compose.yml
+docker-compose.*.yml
 Dockerfile
 .dockerignore
