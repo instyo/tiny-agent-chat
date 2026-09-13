@@ -17,7 +17,9 @@ const rl = createInterface({
 const session = chat.getSession();
 
 console.log("Tiny Agent Chat");
-console.log("Tools: get_time, calculate, get_memory_usage, run_command");
+console.log(
+  "Tools: get_time, calculate, get_memory_usage, run_command, web_search, web_fetch",
+);
 console.log(`Memory: ${MEMORY_PATH}`);
 console.log(`Session: ${session.sessionId} (user: ${session.userId})`);
 console.log("Commands: /exit  /clear  /session  /new\n");

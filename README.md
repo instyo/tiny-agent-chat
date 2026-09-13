@@ -10,6 +10,8 @@ Commands: `/exit` `/clear` `/session` `/new`
 - `calculate` — basic arithmetic
 - `get_memory_usage` — process heap/RSS, host free/total, Docker/cgroup limits when present
 - `run_command` — restricted allowlisted inspection only (`free`, `ps`, `df`, `uname`, …); no shell pipes
+- `web_search` — public web search (Tavily if `TAVILY_API_KEY` is set; else DuckDuckGo → Bing fallback)
+- `web_fetch` — fetch a public URL and return plain text (HTML stripped; private/localhost blocked)
 
 ## Local (Bun)
 
