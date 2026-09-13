@@ -1,0 +1,18 @@
+services:
+  chat:
+    image: tiny-agent-chat:latest
+    build:
+      context: .
+      platforms:
+        - linux/arm64
+    stdin_open: true
+    tty: true
+    init: true
+    env_file:
+      - .env
+    volumes:
+      - chat-data:/app/data
+    working_dir: /app
+
+volumes:
+  chat-data:

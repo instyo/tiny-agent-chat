@@ -1,0 +1,15 @@
+node_modules
+data
+.env
+.env.*
+.git
+.gitignore
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+README.md
+scripts
+docker-compose.yml
+Dockerfile
+.dockerignore
