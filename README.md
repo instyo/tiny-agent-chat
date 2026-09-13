@@ -4,6 +4,13 @@ CLI agent chat with Anvia tools + SQLite memory.
 
 Commands: `/exit` `/clear` `/session` `/new`
 
+### Agent tools
+
+- `get_time` — current ISO time
+- `calculate` — basic arithmetic
+- `get_memory_usage` — process heap/RSS, host free/total, Docker/cgroup limits when present
+- `run_command` — restricted allowlisted inspection only (`free`, `ps`, `df`, `uname`, …); no shell pipes
+
 ## Local (Bun)
 
 ```bash

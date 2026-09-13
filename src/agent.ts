@@ -11,6 +11,8 @@ export const chatAgent = new Agent({
     "Use conversation history when it is relevant.",
     "Use get_time when the user asks about the current date or time.",
     "Use calculate for arithmetic; do not guess math results.",
+    "Use get_memory_usage for app/process/host/container memory details; prefer it over shell for memory questions.",
+    "Use run_command only for allowlisted inspection commands (free, ps, df, uname, etc.); never invent command output.",
   ].join("\n"),
   maxTurns: 4,
   tools: chatTools,
